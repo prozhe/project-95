@@ -8,6 +8,7 @@
 //#include <unistd.h>
 #include <sys/stat.h>
 #include <Tchar.h>
+#include <stdarg.h>
 //Libraries
 
 
@@ -47,8 +48,9 @@ long days( int y, int m, int d);// Total number of days
 void calendar(int y, int m);// display calendar at m y 
 int finalcal();// function for initializing calendar
 int timeminus(char *un , char *num); // function for cutting time of one user
-int adminpasschg();// function for changing password for admin
+int adminpasschg(char *un);// function for changing password for admin
 int passchg();//function for changing one's password
+int gesfun();//function for doing geust command
 //Functions
 
 
@@ -85,10 +87,14 @@ int main ()
 		
 	}
 		
-	system("pause");
+	
 }
 
+int gesfun()
+{
 
+return 0 ; 
+}
 
 int timeminus(char *un , char *num)
 {
@@ -111,7 +117,7 @@ int timeminus(char *un , char *num)
 		else
 		{
 			vaz = 1 ;
-			t = t - tim;
+			t = tim;
 			if ( t < 0 ) { t = 0 ;}
 			fprintf(temp1,"%s %s %d\n",username,password,t);
 		}
@@ -139,8 +145,59 @@ int timeminus(char *un , char *num)
 	return 0 ; 
 }
 
-int adminpasschg()
+int adminpasschg(char *un)
 {
+	char username[21];
+	char usname[21],pasword[17];
+	int t,vaz=0;
+	char newpass1[17],newpass2[17];
+	strcpy(username,un);
+	FILE *temp1,*file;
+	printf("Enter New Password:\t");
+	scanf("%s",newpass1);
+	printf("Confirm Password:\t");
+	scanf("%s",newpass2);
+	getchar();
+	if ( strcmp (newpass1,newpass2))
+	{
+		printf("Confirmation doesn't match the password\n");
+		return 0 ;
+	}
+	
+		file = fopen ("user.txt","r");
+		temp1 = fopen ("temp.txt","w");
+		while (!feof(file))
+		{
+			fscanf(file,"%s%s%d\n",usname,pasword,&t);
+			if ( strcmp(usname,username))
+			{
+				fprintf(temp1,"%s %s %d\n",usname,pasword,t);
+			}
+			else
+			{
+				vaz  = 1 ;
+				fprintf(temp1,"%s %s %d\n",usname,newpass1,t);
+			}
+		}
+		if (vaz == 0 ) 
+		{
+			printf("Username is Invalid\n");
+		}
+	fclose(file);
+	fclose(temp1);
+	file = fopen ("user.txt","w");
+	temp1 = fopen ("temp.txt","r");
+	while ( !feof(temp1))
+	{
+		fscanf(temp1,"%s%s%d",usname,pasword,&t);
+		fprintf(file,"%s %s %d\n",usname,pasword,t);
+	}
+	fclose(file);
+	fclose(temp1);
+	if(vaz == 1 )
+	{
+	printf("Action is Done\n");
+	}
 	return 0 ;
 }
 
@@ -178,6 +235,8 @@ int chguse(char *p)
 					strcpy(user,username);
 					fclose(upf);
 					st = time(NULL);
+					xclear();
+					gesfun();
 					return 1;
 				}
 				printf("Account has Been Dismissed\n");
@@ -259,31 +318,45 @@ int adfun ()
 				continue;
 			}
 		}
+	// checking whether Create user was typed
 
     else if ( ! ( strcmp (part[0] , "su")))
 	{
 		chguse(part[1]);
 	}
+	//cheking whether su was typed
 
 	else if ( ! ( strcmp ( part[0] , "exit")))
 	{
 		exit(1);
 	}
+	//:| :| :|
 
 	else if ( ! ( strcmp ( part[0] , "calendar"))) 
 	{
 		finalcal();
 	}
-	
+	//using for calling calendar function
+
 	else if ( ! ( strcmp (part[0] , "clear")))
 	{
 		xclear();
 	}
+	//:| :| :|
+
 	else if ( ! ( strcmp (part[0] , "passwd")))
 		{
 			if ( ! ( strcmp ( part[1] , "-l")))
 			{
+				if (part[2] == NULL || part[3] == NULL ){
+				printf("Wrong Command\n");
+				continue;
+				}
 				timeminus(part[3] , part[2]);
+			}
+			else
+			{
+				adminpasschg(part[1]);
 			}
 	}
 	else { 
@@ -368,7 +441,7 @@ jump:
 	coninfo.dwCursorPosition.Y = 0;
 	coninfo.dwCursorPosition.X = 0;
 	SetConsoleCursorPosition(hConsole, coninfo.dwCursorPosition);
-	printf("***\t%s is Using the Programm\t***\n",user);
+	printf("***\t%s is Using the Programm\t***\n\n",user);
 
 }
 
