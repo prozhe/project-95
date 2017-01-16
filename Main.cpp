@@ -4,10 +4,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdarg.h>
+#include<conio.h>
+#include<process.h>
 //#include <dirent.h>
 //#include <unistd.h>
 #include <sys/stat.h>
 #include <Tchar.h>
+
 //cool color start
 #define BLUE 9
 #define GREEN 10
@@ -17,6 +20,11 @@
 #define YELLOW 14
 #define WHITE 15
 //cool color end
+
+int i, j, ec, fg, ec2;
+char fn[20], e, c;
+FILE *file_temp, *file_user, *file_func;
+
 void xclear(void);//somthing like system ("Cls");
 void xcprintf(int x,const char *format, ...);//colorful printf
 int um =0 ;//user status    checking if user is admin or not 
@@ -34,6 +42,15 @@ int todayOf( int y, int m, int d); /* The number of days since the beginning of 
 long days( int y, int m, int d);   /* Total number of days */
 void calendar(int y, int m);       /* display calendar at m y */
 int finalcal();// function for initializing calendar
+void Create();
+void Delete();
+void Display(char *ss);
+void myeditor(char *ss);
+void xxclear();
+void Find();
+void Save();
+void Exit();
+void xcopyfile(FILE *copyFrom, FILE *copyTo);
 
 int main ()
 {
@@ -364,4 +381,221 @@ void calendar(int y, int m) /* display calendar at m y */
             printf("\n");
     }
     printf("\n");
+}
+void myeditor(char *ss)
+{
+	if (ss != NULL)
+		Display(ss);
+	char ch;
+	do {
+		xxclear();
+		xcprintf(GREEN, "\n\t**** xxx *****  TEXT EDITOR  ***** xxx ****");
+		xcprintf(CYAN, "\n\n\tMENU:\n\t-----\n ");
+		xcprintf(CYAN, "\n\t1.CREATE\n\t2.DISPLAY and EDIT\n\t3.DELETE\n\t4.EXIT\n");
+		xcprintf(CYAN, "\n\tEnter your choice: ");
+		ch = _getch();
+		switch (ch)
+		{
+		case '1':
+			Create();
+			break;
+		case '2':
+			Display(NULL);
+			break;
+		case '3':
+			Delete();
+			break;
+		case '4':
+			exit(0);
+		}
+	} while (1);
+}
+void Create()
+{
+	xxclear();
+	xcprintf(GREEN, "\n\t**** xxx *****  TEXT EDITOR  ***** xxx ****");
+	xcprintf(CYAN, "\n\n\t1.CREATE:\n\t x\n\t x\n\t x");
+	file_temp = fopen("temp.txt", "w");
+	xcprintf(CYAN, "\n\tEnter the text and press 'Ctrl+S' to save\n\n\t");
+	while (1)
+	{
+		c = _getch();
+
+		if (c == 19)
+		{
+			fclose(file_temp);
+			xcprintf(CYAN, "\n\tEnter then new filename: ");
+			scanf("%s", fn);
+			file_temp = fopen("temp.txt", "r");
+			file_func = fopen(fn, "w");
+			while (!feof(file_temp))
+			{
+				c = getc(file_temp);
+				putc(c, file_func);
+			}
+			fclose(file_func);
+			break;
+		}
+		else
+			if(c == 13)
+			{
+				c = '\n';
+				putchar(c);
+				fputc(c, file_temp);
+				printf("\t");
+			}
+			else
+				if (c == 8)
+				{
+					printf("\b \b");
+					fputc(c, file_temp);
+				}
+				else
+				{
+					putchar(c);
+					fputc(c, file_temp);
+				}
+	}
+}
+void Delete()
+{
+	xxclear();
+	xcprintf(GREEN, "\n\t**** xxx *****  TEXT EDITOR  ***** xxx ****");
+	xcprintf(CYAN, "\n\n\t3.DELETE:\n\t x\n\t x\n\t x");
+	xcprintf(CYAN, "\n\tEnter the file name: ");
+	scanf("%s", fn);
+	file_temp = fopen(fn, "r");
+	if (file_temp == NULL)
+	{
+		xcprintf(RED, "\n\tFile not found!");
+		xcprintf(CYAN, "\n\n\tPress any key to continue...");
+		_getch();
+		myeditor(NULL);
+	}
+	fclose(file_temp);
+	if (remove(fn) == 0)
+	{
+		xcprintf(GREEN, "\n\n\tFile has been deleted successfully!");
+		xcprintf(CYAN, "\n\n\tPress any key to continue...");
+		_getch();
+		myeditor(NULL);
+	}
+	else
+		xcprintf(RED, "\n\tError!\n");
+	xcprintf(CYAN, "\n\n\tPress any key to continue...");
+	_getch();
+}
+void Display(char *ss)
+{
+	xxclear();
+	xcprintf(GREEN, "\n\t**** xxx *****  TEXT EDITOR  ***** xxx ****");
+	xcprintf(CYAN, "\n\n\t2.DISPLAY and EDIT:\n\t x\n\t x\n\t x\n\t");
+	if (ss == NULL)
+	{
+		xcprintf(CYAN, "Enter the file name:\n\t ");
+		scanf("%s", fn);
+		file_temp = fopen(fn, "r");
+	}
+	else
+	{
+		file_temp = fopen(ss, "r");
+		if (file_temp == NULL)
+		{
+			file_temp = fopen(ss, "w");
+			fclose(file_temp);
+			file_temp = fopen(ss, "r");
+		}
+	}
+	if (file_temp == NULL)
+	{
+		xcprintf(RED, "\n\tFile not found!");
+		_getch();
+		myeditor(NULL);
+	}
+	while (!feof(file_temp))
+	{
+		c = getc(file_temp);
+		printf("%c", c);
+		if (c == '\n')
+			printf("\t");
+	}
+	fclose(file_temp);
+	xcprintf(CYAN, "\n\tType the text and press 'Ctrl+S' to append and 'Ctrl+x' to exit.\n\t");
+	file_temp = fopen(fn, "a");
+	while (1)
+	{
+		c = _getch();
+		if (c == 19)
+		{
+			fclose(file_temp);
+			_getch();
+			myeditor(NULL);
+		}
+		if (c == 13)
+		{
+			c = '\n';
+			putchar(c);
+			fputc(c, file_temp);
+			printf("\t");
+		}
+		else
+			if (c == 8)
+			{
+				printf("\b \b");
+				fputc(c, file_temp);
+			}
+			else
+				if (c == 24)
+				{
+					Exit();
+				}
+				else
+				{
+					putchar(c);
+					fputc(c, file_temp);
+				}
+	}
+	fclose(file_temp);
+	_getch();
+}
+
+void xxclear()
+{
+	DWORD n;
+	DWORD size;
+	COORD coord = { 0 };
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	GetConsoleScreenBufferInfo(h, &csbi);
+	size = csbi.dwSize.X * csbi.dwSize.Y;
+	FillConsoleOutputCharacter(h, TEXT(' '), size, coord, &n);
+	GetConsoleScreenBufferInfo(h, &csbi);
+	FillConsoleOutputAttribute(h, csbi.wAttributes, size, coord, &n);
+	SetConsoleCursorPosition(h, coord);
+}
+void Find()
+{
+
+}
+void Save()
+{
+
+}
+void Exit()
+{
+	myeditor(NULL);
+}
+void xcopyfile(FILE *copyFrom,FILE *copyTo)
+{
+	for (;;) {
+		int caractereActuel = fgetc(copyFrom);
+		if (caractereActuel != EOF) {
+			fputc(caractereActuel, copyTo);
+		}
+		else {
+			break;
+		}
+	}
+	fclose(copyFrom);
+	fclose(copyTo);
 }
