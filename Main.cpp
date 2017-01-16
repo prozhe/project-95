@@ -3,11 +3,22 @@
 #include <Windows.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdarg.h>
 //#include <dirent.h>
 //#include <unistd.h>
 #include <sys/stat.h>
 #include <Tchar.h>
+//cool color start
+#define BLUE 9
+#define GREEN 10
+#define CYAN 11
+#define RED 12
+#define PURPLE 13
+#define YELLOW 14
+#define WHITE 15
+//cool color end
 void xclear(void);//somthing like system ("Cls");
+void xcprintf(int x,const char *format, ...);//colorful printf
 int um =0 ;//user status    checking if user is admin or not 
 char user[21];//for showing username in the programm all the time 
 int rt;//reaming time that user can use the program
@@ -226,6 +237,20 @@ int crtur()
 return 0 ;
 }
 
+void xcprintf(int x,const char *format, ...)
+{
+	HANDLE  hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, x);//change color
+
+	va_list arg;
+	va_start(arg, format);
+	vfprintf(stdout, format, arg);
+	va_end(arg);
+
+	SetConsoleTextAttribute(hConsole, 7);//reset color
+}
+
 void xclear(void)
 {
 	int x = 0, y = 0; char ch;
@@ -245,7 +270,7 @@ void xclear(void)
 		coninfo.dwCursorPosition.Y = y;
 		coninfo.dwCursorPosition.X = x;
 		SetConsoleCursorPosition(hConsole, coninfo.dwCursorPosition);
-jump:
+
 			if (ch = fgetc(stdout) == '\n')
 		{
 			printf("%c", NULL);
