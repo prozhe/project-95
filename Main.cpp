@@ -31,8 +31,14 @@ void removefile(char filename[]);
 void cd(char address[]);
 void copyfile(char from[],char to[]);
 char current[250]="\\home";
-char root[250]="C:\\Users\\ozhanT\\Desktop";
+char root[250]="C:\\Users\\ozhanT\\Desktop\\directory";
 void cp(char from[], char to[]);
+int ls(void);
+void pwd(void);
+void writefile1(char filename[],char txt[]);
+void writefile2(char filename[],char txt[]);
+void copyfile1(char from[],char to[]);
+void movefile(char from[], char to[]);
 
 int main ()
 {
@@ -353,22 +359,35 @@ void calendar(int y, int m) /* display calendar at m y */
 
 void cd(char address[])
 {
-    chdir(address);
+    int i;
+    int n;
+    if(address[0]=='\\')
+    {
+        char temp[250];
+        strcpy(temp,root);
+        strcat(temp,address);
+        i = chdir(temp);
+    }
+    else
+       i = chdir(address);
+    if (i!=0)
+            printf("Wrong address inserted if you are entering absolute address start with \\\\home \nfor example: \\\\home\\\\directory1\n");
+
 }
 
 void makedir(char name[])
 {
     mkdir(name);
-
+    printf("directory %s successfully created\n");
 }
 
 void makefile(char filename[],char txt[])
 {
     FILE *ptr;
-    strcat(filename,".txt");
     ptr = fopen(filename , "a");
     fprintf(ptr,"%s",txt);
     fclose(ptr);
+
 
 
 }
@@ -459,11 +478,20 @@ void printfile(char ss[])
     fclose(file);
     file = NULL;
   }
+  else
+  {
+      printf("There is no such file to show\n");
+  }
 }
 
 void removefile(char filename[])
 {
+    int i;
     remove(filename);
+    if (i==0)
+        printf("file %s successfully removed\n",filename);
+    else
+        printf("wrong filename inserted please try again\n");
 }
 
 void copyfile(char from[],char to[])
@@ -487,30 +515,120 @@ void cp(char from[], char to[])
 {
     if(from[0]=='\\'&&from[1]=='\\')
     {
-        char temp1[250];
-        char temp2[250];
+        char temp1[250]={};
+        char temp2[250]={};
         strcpy(temp2,root);
         strcpy(temp1,root);
         strcat(temp1,from);
-        chdir(temp1);
-        FILE *copyFrom = fopen(from,"r");
-        chdir(temp2);
-        FILE *copyTo = fopen(to,"a");
-        for (;;) {
-            int caractereActuel = fgetc(copyFrom);
-            if (caractereActuel != EOF) {
-                fputc(caractereActuel,copyTo);
+        int i = chdir(temp1);
+        if(i==0)
+        {
+            FILE *copyFrom = fopen(from,"r");
+            int j = chdir(temp2);
+            if(j==0)
+            {
+            FILE *copyTo = fopen(to,"a");
+            for (;;) {
+                int caractereActuel = fgetc(copyFrom);
+                if (caractereActuel != EOF) {
+                    fputc(caractereActuel,copyTo);
+                }
+                else {
+                    break;
+                }
             }
-            else {
-                break;
+            fclose(copyFrom);
+            fclose(copyTo);
             }
+            else
+                printf("Wrong Address Inserted \n");
         }
-        fclose(copyFrom);
-        fclose(copyTo);
+        else
+            printf("Wrong Address Inserted\n");
     }
 
     else
         copyfile(from,to);
+}
+
+void pwd(void)
+{
+    printf("%s\n",current);
+}
+
+int ls()
+  {
+    DIR           *d;
+    struct dirent *dir;
+    d = opendir(current);
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+      {
+      //  for(int i=0;dir->d_name!='EOF';i++)
+      //  dir->d_name=you;
+         printf("%s\n", dir->d_name);
+        }
+
+    closedir(d);
+      }
+
+  }
+
+
+void writefile1(char filename[],char txt[])
+{
+    char *ptr;
+    ptr = strstr(filename,".txt");
+    if (ptr==NULL)
+    {
+        FILE *fptr;
+        fptr = fopen(filename,"w");
+        fprintf(fptr,"%s",txt);
+        fclose(fptr);
+        fptr = NULL;
+    }
+    else
+    {
+        copyfile1(filename,txt);
+    }
+}
+
+void copyfile1(char from[],char to[])
+{
+    FILE *copyFrom = fopen(from,"a");
+    FILE *copyTo = fopen(to,"w");
+    for (;;) {
+        int caractereActuel = fgetc(copyFrom);
+        if (caractereActuel != EOF) {
+            fputc(caractereActuel,copyTo);
+        }
+        else {
+            break;
+        }
+    }
+    fclose(copyFrom);
+    fclose(copyTo);
+}
+
+void movefile(char from[],char to[])
+{
+    FILE *copyFrom = fopen(from,"r");
+    if(copyFrom==NULL)
+        printf("No such file\n");
+    FILE *copyTo = fopen(to,"w");
+    for (;;) {
+        int caractereActuel = fgetc(copyFrom);
+        if (caractereActuel != EOF) {
+            fputc(caractereActuel,copyTo);
+        }
+        else {
+            break;
+        }
+    }
+    remove(from);
+    fclose(copyFrom);
+    fclose(copyTo);
 }
 
 
