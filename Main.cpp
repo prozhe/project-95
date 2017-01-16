@@ -1,3 +1,4 @@
+// Libraries
 #include <stdio.h>
 #include <string.h>
 #include <Windows.h>
@@ -7,25 +8,54 @@
 //#include <unistd.h>
 #include <sys/stat.h>
 #include <Tchar.h>
-void xclear(void);//somthing like system ("Cls");
+//Libraries
+
+
+
+//Colours
+#define RED     "\x1b[31m"  
+#define GREEN   "\x1b[32m"	
+#define YELLOW  "\x1b[33m"	
+#define BLUE    "\x1b[34m"	
+#define MAGENTA "\x1b[35m"	
+#define CYAN    "\x1b[36m"	
+#define RESET   "\x1b[0m"	
+//Colours
+
+
+
+//Variables
 int um =0 ;//user status    checking if user is admin or not 
-char user[21];//for showing username in the programm all the time 
 int rt;//reaming time that user can use the program
-int checking_users(char username[21],char password[17]);//cheking whether the username and password is correct or not
+char user[21];//for showing username in the programm all the time 
 time_t st;//starting time for a user for using in time limit 
+//Variables
+
+
+
+//Functions
+void xclear(void);//somthing like system ("Cls");
+int checking_users(char username[21],char password[17]);//cheking whether the username and password is correct or not
 int adfun();//function that runs when admin is using the programm
 int crtur();//function for creating user by admin
 int chguse(char *p);//function for changing user by 
 int gesfun();//functionn that runs when user is geust
-int isLeapYear( int year );        /* True if leap year */
-int leapYears( int year );         /* The number of leap year */
-int todayOf( int y, int m, int d); /* The number of days since the beginning of the year */
-long days( int y, int m, int d);   /* Total number of days */
-void calendar(int y, int m);       /* display calendar at m y */
+int isLeapYear( int year );// True if leap year 
+int leapYears( int year );// The number of leap year 
+int todayOf( int y, int m, int d);// The number of days since the beginning of the year 
+long days( int y, int m, int d);// Total number of days 
+void calendar(int y, int m);// display calendar at m y 
 int finalcal();// function for initializing calendar
+int timeminus(char *un , char *num); // function for cutting time of one user
+int adminpasschg();// function for changing password for admin
+int passchg();//function for changing one's password
+//Functions
+
+
 
 int main ()
 {
+	
 	char username[21],password[17];
 	while (1){
 		printf("................................\n................................\n");
@@ -37,6 +67,7 @@ int main ()
 		{
 			if (!(strcmp(password,"admin")))
 			{
+				strcpy(user , "admin");
 				um = 1  ;
 				break;
 			}
@@ -54,11 +85,69 @@ int main ()
 		
 	}
 		
+	system("pause");
 }
 
 
 
+int timeminus(char *un , char *num)
+{
+	int tim,t,vaz =0 ;
+	char *string,us[21];
+	char username[21],password[17];
+	strcpy(us , un );
+	tim = strtod (num,&string);
+	FILE *file , *temp1;
+	temp1 = fopen ("temp.txt","w");
+	file = fopen ("user.txt","r");
+	//printf("%s\n%d",un,tim);
+	while (!feof(file))
+	{
+		fscanf(file,"%20s%16s%d",username,password,&t);
+		if ( strcmp(username,us))
+		{
+			fprintf(temp1,"%s %s %d\n",username,password,t);
+		}
+		else
+		{
+			vaz = 1 ;
+			t = t - tim;
+			if ( t < 0 ) { t = 0 ;}
+			fprintf(temp1,"%s %s %d\n",username,password,t);
+		}
+	}
+	if ( vaz ==  0 ) 
+	{
+		printf("No Such User\n");
+	}
 
+	fclose(temp1);
+	fclose(file);
+	temp1 = fopen ("temp.txt","r");
+	file = fopen ("user.txt","w");
+	while ( !feof(temp1))
+	{
+		fscanf(temp1,"%s%s%d",username,password,&t);
+		fprintf(file,"%s %s %d\n",username,password,t);
+	}
+	if ( vaz == 1 ) 
+	{
+		printf("Action is Done\n");
+	}
+	fclose(temp1);
+	fclose(file);
+	return 0 ; 
+}
+
+int adminpasschg()
+{
+	return 0 ;
+}
+
+int passchg()
+{
+	return 0 ; 
+}
 
 int chguse(char *p)
 {
@@ -72,6 +161,7 @@ int chguse(char *p)
 	upf = fopen ("user.txt","r");
 	if (!(strcmp(username,"admin")) && !(strcmp(password,"admin")))
 	{
+		strcpy(user , "admin");
 		um =1 ; 
 		xclear(); 
 		adfun();
@@ -97,7 +187,7 @@ int chguse(char *p)
 		}
 	}
 	fclose(upf);
-	printf("Wrong Username or Password\n");
+	printf("Wrong Username or Password\n" );
 	
 	return 0 ;	
 
@@ -143,7 +233,7 @@ int adfun ()
    char command[40] ;
    const char s[2] = " ";
    char *token;
-   char *part[4];
+   char *part[6];
    int tem = 0 ; 
    while ( (command[tem] = getchar()) != '\n'){tem++;}
    command[tem] = '\0';
@@ -169,17 +259,32 @@ int adfun ()
 				continue;
 			}
 		}
+
     else if ( ! ( strcmp (part[0] , "su")))
 	{
 		chguse(part[1]);
 	}
+
 	else if ( ! ( strcmp ( part[0] , "exit")))
 	{
 		exit(1);
 	}
+
 	else if ( ! ( strcmp ( part[0] , "calendar"))) 
 	{
 		finalcal();
+	}
+	
+	else if ( ! ( strcmp (part[0] , "clear")))
+	{
+		xclear();
+	}
+	else if ( ! ( strcmp (part[0] , "passwd")))
+		{
+			if ( ! ( strcmp ( part[1] , "-l")))
+			{
+				timeminus(part[3] , part[2]);
+			}
 	}
 	else { 
 		printf("Wrong Command\n");
