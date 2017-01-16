@@ -23,6 +23,16 @@ int todayOf( int y, int m, int d); /* The number of days since the beginning of 
 long days( int y, int m, int d);   /* Total number of days */
 void calendar(int y, int m);       /* display calendar at m y */
 int finalcal();// function for initializing calendar
+void makedir(char name[]);
+void makefile(char filename[],char txt[]);
+void printfile(char filename[]);
+int removedir(const char *path);
+void removefile(char filename[]);
+void cd(char address[]);
+void copyfile(char from[],char to[]);
+char current[250]="\\home";
+char root[250]="C:\\Users\\ozhanT\\Desktop";
+void cp(char from[], char to[]);
 
 int main ()
 {
@@ -340,3 +350,170 @@ void calendar(int y, int m) /* display calendar at m y */
     }
     printf("\n");
 }
+
+void cd(char address[])
+{
+    chdir(address);
+}
+
+void makedir(char name[])
+{
+    mkdir(name);
+
+}
+
+void makefile(char filename[],char txt[])
+{
+    FILE *ptr;
+    strcat(filename,".txt");
+    ptr = fopen(filename , "a");
+    fprintf(ptr,"%s",txt);
+    fclose(ptr);
+
+
+}
+
+int removedir(const char *path)
+{
+   DIR *d = opendir(path);
+   size_t path_len = strlen(path);
+   int r = -1;
+
+   if (d)
+   {
+      struct dirent *p;
+
+      r = 0;
+
+      while (!r && (p=readdir(d)))
+      {
+          int r2 = -1;
+          char *buf;
+          size_t len;
+
+          /* Skip the names "." and ".." as we don't want to recurse on them. */
+          if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+          {
+             continue;
+          }
+
+          len = path_len + strlen(p->d_name) + 2;
+          buf = malloc(len);
+
+          if (buf)
+          {
+             struct stat statbuf;
+
+             snprintf(buf, len, "%s/%s", path, p->d_name);
+
+             if (!stat(buf, &statbuf))
+             {
+                if (S_ISDIR(statbuf.st_mode))
+                {
+                   r2 = removedir(buf);
+                }
+                else
+                {
+                   r2 = unlink(buf);
+                }
+             }
+
+             free(buf);
+          }
+
+          r = r2;
+      }
+
+      closedir(d);
+   }
+
+   if (!r)
+   {
+      r = rmdir(path);
+   }
+
+   return r;
+}
+
+void printfile(char ss[])
+{
+  char str[999];
+  FILE * file;
+  file = fopen(ss, "r");
+  if (file)
+  {
+    while (fgets(str, 100, file))
+    {
+      if (str[0] == EOF)
+        break;
+      printf("%s", str);
+    }
+
+
+    int counter;
+    for (counter = 0; counter <= 10; counter++)
+    {
+      fgetc(stdout);
+    }
+
+    fclose(file);
+    file = NULL;
+  }
+}
+
+void removefile(char filename[])
+{
+    remove(filename);
+}
+
+void copyfile(char from[],char to[])
+{
+    FILE *copyFrom = fopen(from,"r");
+    FILE *copyTo = fopen(to,"a");
+    for (;;) {
+        int caractereActuel = fgetc(copyFrom);
+        if (caractereActuel != EOF) {
+            fputc(caractereActuel,copyTo);
+        }
+        else {
+            break;
+        }
+    }
+    fclose(copyFrom);
+    fclose(copyTo);
+}
+
+void cp(char from[], char to[])
+{
+    if(from[0]=='\\'&&from[1]=='\\')
+    {
+        char temp1[250];
+        char temp2[250];
+        strcpy(temp2,root);
+        strcpy(temp1,root);
+        strcat(temp1,from);
+        chdir(temp1);
+        FILE *copyFrom = fopen(from,"r");
+        chdir(temp2);
+        FILE *copyTo = fopen(to,"a");
+        for (;;) {
+            int caractereActuel = fgetc(copyFrom);
+            if (caractereActuel != EOF) {
+                fputc(caractereActuel,copyTo);
+            }
+            else {
+                break;
+            }
+        }
+        fclose(copyFrom);
+        fclose(copyTo);
+    }
+
+    else
+        copyfile(from,to);
+}
+
+
+
+
+
