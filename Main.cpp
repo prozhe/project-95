@@ -1076,6 +1076,24 @@ void start()
     play_again();
 }
 
-
+void help(void);
+{
+    printf("cd filename(absolute or relative): opens filename\n");
+    printf("cal; prints the current month\n");
+    printf("exit: closes the program\n");
+    printf("history: shows the history of given commands\n");
+    printf("pwd:shows current position\n");
+    printf("mkdir dirname: creates a directory named dirname\n");
+    printf("text>filename: puts text into filename and if text is a file name puts the texts in that file into filename\n");
+    printf("cat filename: shows filename's content\n");
+    printf("rm filename: removes filename if it is found in the current directory\n");
+    printf("rm dirname-r: removes dirname and all the files in it\n");
+    printf("cp file1 file2(or address): copies file1 in file2\n");
+    printf("mv file1 file2(or address): moves file1 to file2\n");
+    printf("ls; shows current directory's files\n");
+    printf("create user: can only be ran by admin and its used to create a new user\n");
+    printf("passwd: it's used to change password\n");
+    printf("exif: shows the creator of a file and the time it was created and last changes\n");
+}
 
 
